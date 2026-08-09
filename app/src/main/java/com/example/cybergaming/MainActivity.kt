@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -34,18 +35,32 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun CyberGamingApp() {
+    // Crear un NavController para manejar la navegación entre pantallas
     val navController = rememberNavController()
 
-    val juegoViewModel: JuegoViewModel = viewModel()
+    // Obtener el contexto actual para usarlo en la creación del ViewModel
+    val context = LocalContext.current
 
+    // Obtener la instancia de la base de datos
+    val database = JuegoDatabase.getDatabase(context)
+    val dao = database.juegoDao()
+
+    // Crear una instancia del ViewModel usando el factory y el DAO
+    val juegoViewModel: JuegoViewModel = viewModel(
+        factory = JuegoViewModelFactory(dao)
+    )
+
+    // Configurar el NavHost para definir las rutas de navegación
     NavHost(
         navController = navController,
         startDestination = "pantalla"
     ){
+        // Definir la ruta para la pantalla principal
         composable("pantalla"){
             Pantalla(navController = navController, viewModel = juegoViewModel)
         }
 
+        // Definir la ruta para la pantalla de detalle, pasando el ID del juego como argumento
         composable ("detalle/{id}") { backStackEntry ->
             val idString = backStackEntry.arguments?.getString("id")
 
