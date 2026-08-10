@@ -60,6 +60,10 @@ fun CyberGamingApp() {
             Pantalla(navController = navController, viewModel = juegoViewModel)
         }
 
+        composable ("ajustes"){
+            PantallaAjuste(navController = navController)
+        }
+
         // Definir la ruta para la pantalla de detalle, pasando el ID del juego como argumento
         composable ("detalle/{id}") { backStackEntry ->
             val idString = backStackEntry.arguments?.getString("id")
