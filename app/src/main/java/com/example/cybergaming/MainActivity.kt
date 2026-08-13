@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,6 +45,10 @@ fun CyberGamingApp() {
     // Obtener la instancia de la base de datos
     val database = JuegoDatabase.getDatabase(context)
     val dao = database.juegoDao()
+
+    val api= RetrofitClient.apiService
+
+    val repositorio = remember { JuegoRepository(dao) }
 
     // Crear una instancia del ViewModel usando el factory y el DAO
     val juegoViewModel: JuegoViewModel = viewModel(

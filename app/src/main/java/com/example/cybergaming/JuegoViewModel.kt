@@ -8,9 +8,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class JuegoViewModel (private val dao: JuegoDao): ViewModel() {
+class JuegoViewModel (private val repository: JuegoRepository): ViewModel() {
 
-    val juegos: StateFlow<List<Juego>> = dao.obtenerjuegos()
+    val juegos: StateFlow<List<Juego>> = repository.obtenerJuegos
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5000),
@@ -27,23 +27,23 @@ class JuegoViewModel (private val dao: JuegoDao): ViewModel() {
 
     fun insertarJuego(juego: Juego) {
         viewModelScope.launch {
-            dao.insertJuego(juego)
+            repository.insertarJuegoLocal(juego)
 
         }
     }
 
     suspend fun obtenerJuegoPorId(id: Int): Juego? {
-        return dao.obtenerJuegoPorId(id)
+        return repository.obtenerJuegoLocalPorId(id)
     }
 
 
 }
 
-class JuegoViewModelFactory(private val dao: JuegoDao) : ViewModelProvider.Factory {
+class JuegoViewModelFactory(private val repository: JuegoRepository) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(JuegoViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return JuegoViewModel(dao) as T
+            return JuegoViewModel(repository) as T
         }
         throw IllegalArgumentException("Clase ViewModel desconocida")
     }

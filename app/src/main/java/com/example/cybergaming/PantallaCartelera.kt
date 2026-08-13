@@ -89,7 +89,7 @@ fun PantallaCartelera(navController: NavController, viewModel: JuegoViewModel) {
 
 // Componente visual para CADA juego de Steam en la cartelera
 @Composable
-fun ItemCartelera(juego: SteamGameDto) {
+fun ItemCartelera(juego: SteamGame) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
