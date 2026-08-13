@@ -17,6 +17,10 @@ class JuegoViewModel (private val dao: JuegoDao): ViewModel() {
             initialValue = emptyList()
         )
 
+    private val _juegosseleccionados = mutableStateFlowOf<List<Juego>>(emptyList())
+    val juegosseleccionados: StateFlow<List<Juego>> = _juegosseleccionados
+
+
     //corrutinas para insertar un juego en la base de datos
 
     //funcion para insertar un juego en la base de datos
