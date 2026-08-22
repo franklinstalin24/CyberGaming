@@ -7,28 +7,42 @@ class JuegoRepository(
     private val juegoDao: JuegoDao,
     private val steamApi: SteamApi
 ) {
-    // --- 1. OPERACIONES LOCALES (ROOM) ---
+    fun obtenerJuegosLocales(usuario: String): Flow<List<Juego>> {
+        return juegoDao.obtenerJuegosPorUsuario(usuario)
+    }
 
-    // Obtenemos el Flow de la base de datos local
-    val juegosLocales: Flow<List<Juego>> = juegoDao.obtenerTodosLosJuegos()
+    suspend fun insertarJuegoLocal(juego: Juego): Boolean {
+        val existente = juegoDao.obtenerJuegoPorNombreYUsuario(juego.nombre, juego.usuarioPropietario)
+        if (existente == null) {
+            juegoDao.insertarJuego(juego)
+            return true
+        }
+        return false
+    }
 
-    suspend fun insertarJuegoLocal(juego: Juego) {
-        juegoDao.insertarJuego(juego)
+    suspend fun eliminarJuegoLocal(juego: Juego) {
+        juegoDao.eliminarJuego(juego)
     }
 
     suspend fun obtenerJuegoLocalPorId(id: Int): Juego? {
         return juegoDao.obtenerJuegoPorId(id)
     }
 
-    // --- 2. OPERACIONES DE RED (RETROFIT - STEAM) ---
-
-    suspend fun obtenerJuegosDestacadosDeRed(): List<SteamGame> {
+    suspend fun obtenerJuegosDestacadosDeRed(): Result<List<SteamGame>> {
         return try {
-            val respuesta = steamApi.obtenerJuegosDestacados()
-            respuesta.featuredWin ?: emptyList()
+            val listaBruta = steamApi.obtenerJuegosDestacados()
+            val listaConvertida = listaBruta.map { juegoApi ->
+                SteamGame(
+                    id = juegoApi.id,
+                    name = juegoApi.title,
+                    largeCapsuleImage = juegoApi.thumbnail,
+                    rating = 4.5
+                )
+            }
+            Result.success(listaConvertida)
         } catch (e: Exception) {
-            Log.e("CyberGaming", "Error en Repositorio de Red: ${e.message}")
-            emptyList() // Devuelve lista vacía si falla la conexión para evitar caídas
+            Log.e("CyberGaming", "Error de red: ${e.message}")
+            Result.failure(e)
         }
     }
 }

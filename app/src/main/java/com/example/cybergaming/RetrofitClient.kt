@@ -1,20 +1,30 @@
 package com.example.cybergaming
 
+import com.google.gson.annotations.SerializedName
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Query
 
-// Interfaz que define los endpoints de la API
 interface SteamApi {
-    @GET("juegos destacados")
-    suspend fun obtenerJuegosDestacados(
-
-    ): SteamDestacado
+    // Usamos Freetome / API pública de juegos o endpoint abierto de juegos (FreeToGame API es excelente para esto)
+    // O una API pública de juegos sin llave: https://www.freetogame.com/api/games
+    @GET("games")
+    suspend fun obtenerJuegosDestacados(): List<FreeToGameModel>
 }
 
-// Objeto Singleton para mantener una única instancia de Retrofit en toda la app
+// Modelo específico para la API ultra estable de videojuegos gratuitos (FreeToGame)
+data class FreeToGameModel(
+    @SerializedName("id") val id: Int,
+    @SerializedName("title") val title: String,
+    @SerializedName("thumbnail") val thumbnail: String,
+    @SerializedName("genre") val genre: String,
+    @SerializedName("platform") val platform: String
+)
+
 object RetrofitClient {
-    private const val BASE_URL = "https://store.steampowered.com/api/featured/"
+    // API 100% gratuita y pública de videojuegos de PC / Steam
+    private const val BASE_URL = "https://www.freetogame.com/api/"
 
     val apiService: SteamApi by lazy {
         Retrofit.Builder()

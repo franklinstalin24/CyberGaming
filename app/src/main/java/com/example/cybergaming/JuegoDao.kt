@@ -1,6 +1,7 @@
 package com.example.cybergaming
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -10,15 +11,17 @@ import kotlinx.coroutines.flow.Flow
 interface JuegoDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertJuego(juego: Juego)
+    suspend fun insertarJuego(juego: Juego)
 
-    @Query("SELECT * FROM juegos")
-    fun obtenerjuegos(): Flow<List<Juego>>
+    @Delete
+    suspend fun eliminarJuego(juego: Juego)
 
-    @Query("SELECT * FROM juegos WHERE id = :idBuscado")
+    @Query("SELECT * FROM tabla_juegos WHERE usuarioPropietario = :usuario")
+    fun obtenerJuegosPorUsuario(usuario: String): Flow<List<Juego>>
+
+    @Query("SELECT * FROM tabla_juegos WHERE id = :idBuscado")
     suspend fun obtenerJuegoPorId(idBuscado: Int): Juego?
 
-    @Query ("DELETE FROM juegos")
-    suspend fun eliminarTodosLosJuegos()
-
+    @Query("SELECT * FROM tabla_juegos WHERE nombre = :nombreJuego AND usuarioPropietario = :usuario LIMIT 1")
+    suspend fun obtenerJuegoPorNombreYUsuario(nombreJuego: String, usuario: String): Juego?
 }

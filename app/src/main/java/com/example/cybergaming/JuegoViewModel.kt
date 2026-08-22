@@ -3,40 +3,69 @@ package com.example.cybergaming
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class JuegoViewModel (private val repository: JuegoRepository): ViewModel() {
+sealed class UiStateRed {
+    object Cargando : UiStateRed()
+    data class Exito(val juegos: List<SteamGame>) : UiStateRed()
+    data class Error(val mensaje: String) : UiStateRed()
+}
 
-    val juegos: StateFlow<List<Juego>> = repository.obtenerJuegos
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList()
-        )
+class JuegoViewModel(private val repository: JuegoRepository) : ViewModel() {
 
-    private val _juegosseleccionados = mutableStateFlowOf<List<Juego>>(emptyList())
-    val juegosseleccionados: StateFlow<List<Juego>> = _juegosseleccionados
+    fun juegosPorUsuario(usuario: String): StateFlow<List<Juego>> {
+        return repository.obtenerJuegosLocales(usuario)
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = emptyList()
+            )
+    }
 
+    private val _estadoRed = MutableStateFlow<UiStateRed>(UiStateRed.Cargando)
+    val estadoRed: StateFlow<UiStateRed> = _estadoRed.asStateFlow()
 
-    //corrutinas para insertar un juego en la base de datos
-
-    //funcion para insertar un juego en la base de datos
-
-    fun insertarJuego(juego: Juego) {
+    fun descargarJuegosSteam() {
         viewModelScope.launch {
-            repository.insertarJuegoLocal(juego)
+            _estadoRed.value = UiStateRed.Cargando
+            val resultado = repository.obtenerJuegosDestacadosDeRed()
 
+            resultado.fold(
+                onSuccess = { lista ->
+                    if (lista.isNotEmpty()) {
+                        _estadoRed.value = UiStateRed.Exito(lista)
+                    } else {
+                        _estadoRed.value = UiStateRed.Error("No se encontraron juegos disponibles en línea.")
+                    }
+                },
+                onFailure = { _ ->
+                    _estadoRed.value = UiStateRed.Error("Error de conexión: Verifique su internet.")
+                }
+            )
+        }
+    }
+
+    fun insertarJuego(juego: Juego, onResultado: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val insertado = repository.insertarJuegoLocal(juego)
+            onResultado(insertado)
+        }
+    }
+
+    fun eliminarJuego(juego: Juego) {
+        viewModelScope.launch {
+            repository.eliminarJuegoLocal(juego)
         }
     }
 
     suspend fun obtenerJuegoPorId(id: Int): Juego? {
         return repository.obtenerJuegoLocalPorId(id)
     }
-
-
 }
 
 class JuegoViewModelFactory(private val repository: JuegoRepository) : ViewModelProvider.Factory {
