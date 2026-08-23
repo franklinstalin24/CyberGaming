@@ -39,3 +39,13 @@ Funcionalidad de Hardware y Permisos
 Cámara del Dispositivo: Implementada mediante ActivityResultContracts.TakePicturePreview() para tomar fotos de perfil.
 
 Permisos en Tiempo de Ejecución: Solicita formalmente el permiso android.permission.CAMERA al usuario y maneja el caso de rechazo mostrando un aviso visual de advertencia.
+
+<img width="1080" height="2400" alt="WhatsApp Image 2026-08-23 at 11 21 21 AM" src="https://github.com/user-attachments/assets/5665525f-c129-4a49-937c-ba6db9cd2541" />
+
+<img width="720" height="1600" alt="WhatsApp Image 2026-08-23 at 11 21 21 AM (1)" src="https://github.com/user-attachments/assets/49b3a7fc-501f-45da-b869-795a322a198c" />
+
+<img width="720" height="1600" alt="WhatsApp Image 2026-08-23 at 11 21 20 AM" src="https://github.com/user-attachments/assets/2c7ec429-775d-4624-9bcb-930edd4688cc" />
+
+<img width="720" height="1600" alt="WhatsApp Image 2026-08-23 at 11 21 20 AM (1)" src="https://github.com/user-attachments/assets/9897053f-ba70-41af-89e7-339a5317e06c" />
+
+
